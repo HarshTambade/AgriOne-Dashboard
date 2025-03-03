@@ -10,217 +10,408 @@ import {
 } from "recharts";
 import {
   AttachMoney, LocalShipping, Cloud, Spa, Dashboard as DashboardIcon,
-  ArrowDropUp, ArrowDropDown, Opacity, Chat, Storage, InsertChart
+  ArrowDropUp, ArrowDropDown, Opacity, ShoppingCart, Add, Search
 } from "@mui/icons-material";
 
 // Dummy Data
-const marketData = [
-  { month: 'Jan', price: 120, demand: 85, supply: 78 },
-  { month: 'Feb', price: 135, demand: 92, supply: 85 },
-  { month: 'Mar', price: 115, demand: 78, supply: 95 },
-  // ...12 months data
+const priceData = [
+  { date: 'Jan', price: 120, demand: 85 },
+  { date: 'Feb', price: 135, demand: 92 },
+  { date: 'Mar', price: 115, demand: 78 },
+  { date: 'Apr', price: 145, demand: 88 },
+  { date: 'May', price: 160, demand: 95 },
+  { date: 'Jun', price: 155, demand: 89 },
+  { date: 'Jul', price: 170, demand: 98 },
+  { date: 'Aug', price: 165, demand: 93 },
+  { date: 'Sep', price: 150, demand: 87 },
+  { date: 'Oct', price: 140, demand: 85 },
+  { date: 'Nov', price: 130, demand: 82 },
+  { date: 'Dec', price: 125, demand: 80 },
 ];
 
-const weatherForecast = [
-  { day: 'Mon', temp: '28°C', rain: '15mm', risk: 'Low' },
-  { day: 'Tue', temp: '26°C', rain: '8mm', risk: 'Medium' },
-  // ...7 days data
+const cropHealthData = [
+  { name: 'Healthy', value: 82 },
+  { name: 'Diseased', value: 12 },
+  { name: 'Needs Attention', value: 6 },
 ];
 
-const cropHealth = [
-  { crop: 'Wheat', health: 85, diseaseRisk: 'Low' },
-  { crop: 'Rice', health: 72, diseaseRisk: 'Medium' },
-  // ...crops
+const COLORS = ['#00C49F', '#FF8042', '#FFBB28'];
+
+const loanData = [
+  { id: 1, bank: 'AgriBank', interestRate: '4.5%', maxAmount: '$75,000', eligibility: 'High', logo: '🌾' },
+  { id: 2, bank: 'GreenFarm Loans', interestRate: '5.2%', maxAmount: '$50,000', eligibility: 'Medium', logo: '🌱' },
+  { id: 3, bank: 'Rural Credit Co-op', interestRate: '3.9%', maxAmount: '$100,000', eligibility: 'High', logo: '🚜' },
+  { id: 4, bank: 'Global Agri Finance', interestRate: '6.1%', maxAmount: '$150,000', eligibility: 'Low', logo: '🌍' },
 ];
 
-const financialProducts = [
-  { bank: 'AgriBank', type: 'Loan', rate: '4.5%', amount: '$50k' },
-  { bank: 'GreenFin', type: 'Subsidy', rate: '0%', amount: '$10k' },
-  // ...financial options
+const marketplaceData = [
+  { id: 1, crop: 'Organic Wheat', quantity: '1500kg', price: '$250', seller: 'Farmer John', rating: 4.8 },
+  { id: 2, crop: 'Basmati Rice', quantity: '800kg', price: '$180', seller: 'Farmer Jane', rating: 4.5 },
+  { id: 3, crop: 'Non-GMO Corn', quantity: '2000kg', price: '$220', seller: 'Farmer Joe', rating: 4.9 },
+  { id: 4, crop: 'Quinoa', quantity: '500kg', price: '$300', seller: 'Farmer Alice', rating: 4.7 },
 ];
 
-const marketplaceListings = [
-  { crop: 'Organic Wheat', quantity: '1.5T', price: '$250', rating: 4.8 },
-  { crop: 'Basmati Rice', quantity: '800kg', price: '$180', rating: 4.5 },
-  // ...listings
+const logisticsData = [
+  { id: 1, location: 'Warehouse Alpha', capacity: 85, crops: 'Wheat, Rice', temperature: '18-22°C', humidity: '65%' },
+  { id: 2, location: 'Cold Storage Beta', capacity: 65, crops: 'Vegetables, Fruits', temperature: '2-5°C', humidity: '85%' },
+  { id: 3, location: 'Silo Complex Gamma', capacity: 92, crops: 'Corn, Soybean', temperature: '15-20°C', humidity: '70%' },
 ];
 
-const storageFacilities = [
-  { location: 'Warehouse A', capacity: 85, crops: 'Wheat, Rice' },
-  { location: 'Cold Storage B', capacity: 65, crops: 'Vegetables' },
-  // ...storage units
+const weatherData = [
+  { id: 1, day: 'Monday', temp: '28°C', rainfall: '15mm', humidity: '75%', wind: '12 km/h', risk: 'Medium' },
+  { id: 2, day: 'Tuesday', temp: '26°C', rainfall: '8mm', humidity: '68%', wind: '8 km/h', risk: 'Low' },
+  { id: 3, day: 'Wednesday', temp: '24°C', rainfall: '22mm', humidity: '82%', wind: '18 km/h', risk: 'High' },
+  { id: 4, day: 'Thursday', temp: '27°C', rainfall: '5mm', humidity: '65%', wind: '10 km/h', risk: 'Medium' },
 ];
 
-const AgriOneDashboard = () => {
+const Dashboard = () => {
+  const [crop, setCrop] = useState("");
+  const [weatherLocation, setWeatherLocation] = useState("");
   const [tabValue, setTabValue] = useState(0);
-  const [cropQuery, setCropQuery] = useState('');
+  const [newListing, setNewListing] = useState({ crop: '', quantity: '', price: '' });
 
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
   };
 
-  return (
-    <Box sx={{ p: 3, bgcolor: '#f8fafc', minHeight: '100vh' }}>
-      {/* Header */}
-      <Box sx={{ mb: 3, display: 'flex', alignItems: 'center', gap: 2 }}>
-        <Spa fontSize="large" sx={{ color: '#2e7d32' }} />
-        <Typography variant="h4" sx={{ fontWeight: 800, color: '#1b5e20' }}>
-          AgriOne Platform
-        </Typography>
-      </Box>
+  const handleCreateListing = () => {
+    // Add logic to handle new listing submission
+    console.log('New listing:', newListing);
+    setNewListing({ crop: '', quantity: '', price: '' });
+  };
 
-      {/* Main Tabs */}
-      <Tabs value={tabValue} onChange={handleTabChange} variant="scrollable">
-        <Tab icon={<InsertChart />} label="Market Intel" />
-        <Tab icon={<Cloud />} label="Weather Advisory" />
-        <Tab icon={<Spa />} label="Crop Management" />
-        <Tab icon={<AttachMoney />} label="Financial Hub" />
-        <Tab icon={<Storage />} label="Storage Logistics" />
-        <Tab icon={<LocalShipping />} label="Marketplace" />
+  const renderRiskBadge = (risk) => {
+    const colorMap = {
+      Low: 'success',
+      Medium: 'warning',
+      High: 'error'
+    };
+    return (
+      <Button 
+        variant="contained" 
+        color={colorMap[risk]} 
+        size="small"
+        sx={{ borderRadius: 20, textTransform: 'none' }}
+      >
+        {risk} Risk
+      </Button>
+    );
+  };
+
+  return (
+    <Box sx={{ p: 4, backgroundColor: '#f8fafc', minHeight: '100vh' }}>
+      <Typography variant="h4" component="h1" gutterBottom sx={{ 
+        fontWeight: 800, 
+        color: '#1a5632',
+        display: 'flex',
+        alignItems: 'center',
+        gap: 2
+      }}>
+        <Spa fontSize="large" /> AgriOne Dashboard
+      </Typography>
+
+      <Tabs value={tabValue} onChange={handleTabChange} variant="scrollable" scrollButtons="auto"
+        sx={{ 
+          '& .MuiTabs-indicator': { backgroundColor: '#1a5632' },
+          '& .Mui-selected': { color: '#1a5632 !important' }
+        }}
+      >
+        <Tab icon={<AttachMoney />} label="Market Intel" />
+        <Tab icon={<Spa />} label="Crop Advisory" />
+        <Tab icon={<DashboardIcon />} label="Finance" />
+        <Tab icon={<LocalShipping />} label="Logistics" />
+        <Tab icon={<Cloud />} label="Weather" />
+        <Tab icon={<ShoppingCart />} label="Marketplace" />
       </Tabs>
 
-      {/* Tab Content */}
-      <Box sx={{ mt: 3 }}>
+      <Box sx={{ mt: 4 }}>
         {/* Market Intelligence Tab */}
         {tabValue === 0 && (
           <Grid container spacing={3}>
-            <Grid item xs={12} md={6}>
-              <Card sx={{ borderRadius: 2 }}>
-                <CardHeader title="Price Trends & Forecast" />
+            <Grid item xs={12} md={8}>
+              <Card sx={{ borderRadius: 3, boxShadow: 3 }}>
+                <CardHeader 
+                  title="Market Trends Analysis" 
+                  subheader="Real-time commodity pricing and demand forecast"
+                  titleTypographyProps={{ variant: 'h6', fontWeight: 600 }}
+                  sx={{ bgcolor: '#f0fdf4' }}
+                />
                 <CardContent>
-                  <ResponsiveContainer width="100%" height={300}>
-                    <LineChart data={marketData}>
-                      <XAxis dataKey="month" />
-                      <YAxis />
-                      <Tooltip />
-                      <Line type="monotone" dataKey="price" stroke="#2e7d32" />
-                    </LineChart>
-                  </ResponsiveContainer>
+                  <Grid container spacing={3}>
+                    <Grid item xs={12} md={6}>
+                      <Typography variant="subtitle1" gutterBottom sx={{ fontWeight: 600 }}>
+                        Price Trends 📈
+                      </Typography>
+                      <ResponsiveContainer width="100%" height={300}>
+                        <LineChart data={priceData}>
+                          <XAxis dataKey="date" />
+                          <YAxis />
+                          <Tooltip />
+                          <Line 
+                            type="monotone" 
+                            dataKey="price" 
+                            stroke="#1a5632" 
+                            strokeWidth={2}
+                            dot={{ fill: '#1a5632' }}
+                          />
+                        </LineChart>
+                      </ResponsiveContainer>
+                    </Grid>
+                    <Grid item xs={12} md={6}>
+                      <Typography variant="subtitle1" gutterBottom sx={{ fontWeight: 600 }}>
+                        Demand Forecast 📊
+                      </Typography>
+                      <ResponsiveContainer width="100%" height={300}>
+                        <BarChart data={priceData}>
+                          <XAxis dataKey="date" />
+                          <YAxis />
+                          <Tooltip />
+                          <Bar 
+                            dataKey="demand" 
+                            fill="#82ca9d" 
+                            radius={[4, 4, 0, 0]}
+                          />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </Grid>
+                  </Grid>
                 </CardContent>
               </Card>
             </Grid>
 
-            <Grid item xs={12} md={6}>
-              <Card sx={{ borderRadius: 2 }}>
-                <CardHeader title="Supply-Demand Analysis" />
+            <Grid item xs={12} md={4}>
+              <Card sx={{ borderRadius: 3, boxShadow: 3 }}>
+                <CardHeader
+                  title="Quick Actions"
+                  titleTypographyProps={{ variant: 'h6', fontWeight: 600 }}
+                  sx={{ bgcolor: '#f0fdf4' }}
+                />
                 <CardContent>
-                  <ResponsiveContainer width="100%" height={300}>
-                    <BarChart data={marketData}>
-                      <XAxis dataKey="month" />
-                      <YAxis />
-                      <Tooltip />
-                      <Bar dataKey="demand" fill="#81c784" />
-                      <Bar dataKey="supply" fill="#4caf50" />
-                    </BarChart>
-                  </ResponsiveContainer>
+                  <Grid container spacing={2}>
+                    {marketplaceData.map((item) => (
+                      <Grid item xs={12} key={item.id}>
+                        <Card variant="outlined" sx={{ p: 2, borderRadius: 2 }}>
+                          <Box display="flex" alignItems="center" justifyContent="space-between">
+                            <Box>
+                              <Typography variant="subtitle1" fontWeight={600}>
+                                {item.crop}
+                              </Typography>
+                              <Typography variant="body2" color="text.secondary">
+                                {item.seller}
+                              </Typography>
+                            </Box>
+                            <Box textAlign="right">
+                              <Typography variant="body1" fontWeight={600}>
+                                {item.price}
+                              </Typography>
+                              <Box display="flex" alignItems="center" gap={0.5}>
+                                <Typography variant="caption" color="text.secondary">
+                                  {item.rating}/5
+                                </Typography>
+                                <Box color="#ffc107">★</Box>
+                              </Box>
+                            </Box>
+                          </Box>
+                        </Card>
+                      </Grid>
+                    ))}
+                  </Grid>
                 </CardContent>
               </Card>
             </Grid>
           </Grid>
         )}
 
-        {/* Weather Advisory Tab */}
+        {/* Crop Advisory Tab */}
         {tabValue === 1 && (
           <Grid container spacing={3}>
-            {weatherForecast.map((day) => (
-              <Grid item xs={6} md={2} key={day.day}>
-                <Card sx={{ p: 2, textAlign: 'center' }}>
-                  <Typography variant="h6">{day.day}</Typography>
-                  <Typography variant="h4" sx={{ my: 1 }}>{day.temp}</Typography>
-                  <Chip 
-                    label={day.risk} 
-                    color={
-                      day.risk === 'Low' ? 'success' : 
-                      day.risk === 'Medium' ? 'warning' : 'error'
-                    }
-                  />
-                  <Typography variant="body2" sx={{ mt: 1 }}>{day.rain} rainfall</Typography>
-                </Card>
-              </Grid>
-            ))}
-          </Grid>
-        )}
-
-        {/* Crop Management Tab */}
-        {tabValue === 2 && (
-          <Grid container spacing={3}>
             <Grid item xs={12} md={4}>
-              <Card sx={{ p: 2 }}>
-                <CardHeader title="Crop Health Monitor" />
+              <Card sx={{ borderRadius: 3, boxShadow: 3, height: '100%' }}>
+                <CardHeader
+                  title="Crop Health Overview"
+                  titleTypographyProps={{ variant: 'h6', fontWeight: 600 }}
+                  sx={{ bgcolor: '#f0fdf4' }}
+                />
                 <CardContent>
-                  <PieChart width={300} height={200}>
-                    <Pie
-                      data={cropHealth}
-                      dataKey="health"
-                      nameKey="crop"
-                      cx="50%"
-                      cy="50%"
-                      outerRadius={80}
-                    >
-                      {cropHealth.map((entry, index) => (
-                        <Cell key={index} fill={['#81c784', '#ffb74d', '#ef5350'][index]} />
-                      ))}
-                    </Pie>
-                    <Tooltip />
-                  </PieChart>
+                  <ResponsiveContainer width="100%" height={300}>
+                    <PieChart>
+                      <Pie
+                        data={cropHealthData}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={60}
+                        outerRadius={80}
+                        paddingAngle={5}
+                        dataKey="value"
+                      >
+                        {cropHealthData.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                        ))}
+                      </Pie>
+                      <Tooltip 
+                        formatter={(value) => [`${value}%`, 'Percentage']}
+                        contentStyle={{ borderRadius: 8 }}
+                      />
+                    </PieChart>
+                  </ResponsiveContainer>
+                  <Box mt={2}>
+                    {cropHealthData.map((item, index) => (
+                      <Box key={index} display="flex" alignItems="center" mb={1}>
+                        <Box 
+                          width={12} 
+                          height={12} 
+                          bgcolor={COLORS[index]} 
+                          borderRadius="50%" 
+                          mr={1} 
+                        />
+                        <Typography variant="body2">{item.name}</Typography>
+                      </Box>
+                    ))}
+                  </Box>
                 </CardContent>
               </Card>
             </Grid>
 
             <Grid item xs={12} md={8}>
-              <Card sx={{ p: 2 }}>
-                <CardHeader title="AI Farming Assistant" />
+              <Card sx={{ borderRadius: 3, boxShadow: 3 }}>
+                <CardHeader
+                  title="Crop Advisory System"
+                  titleTypographyProps={{ variant: 'h6', fontWeight: 600 }}
+                  sx={{ bgcolor: '#f0fdf4' }}
+                />
                 <CardContent>
-                  <TextField
-                    fullWidth
-                    label="Ask about crop management..."
-                    value={cropQuery}
-                    onChange={(e) => setCropQuery(e.target.value)}
-                    InputProps={{
-                      endAdornment: (
-                        <Button variant="contained" color="primary">
-                          <Chat />
-                        </Button>
-                      )
-                    }}
-                  />
-                  <Box sx={{ mt: 2, p: 2, bgcolor: '#f5f5f5', borderRadius: 2 }}>
-                    <Typography variant="body2" color="text.secondary">
-      Try: "Best fertilizer for wheat in current weather?" or "How to prevent rice blight?"
-                    </Typography>
-                  </Box>
+                  <Grid container spacing={3}>
+                    <Grid item xs={12}>
+                      <TextField
+                        fullWidth
+                        label="Enter Crop Name"
+                        variant="outlined"
+                        value={crop}
+                        onChange={(e) => setCrop(e.target.value)}
+                        InputProps={{
+                          endAdornment: (
+                            <Button 
+                              variant="contained" 
+                              color="primary"
+                              sx={{ borderRadius: 2 }}
+                            >
+                              Analyze
+                            </Button>
+                          )
+                        }}
+                      />
+                    </Grid>
+                    {crop && (
+                      <Grid item xs={12}>
+                        <Card variant="outlined" sx={{ p: 3, borderRadius: 2 }}>
+                          <Typography variant="h6" gutterBottom sx={{ fontWeight: 600 }}>
+                            Recommendations for {crop}
+                          </Typography>
+                          <Grid container spacing={2}>
+                            <Grid item xs={6} md={3}>
+                              <Box textAlign="center">
+                                <Avatar sx={{ bgcolor: '#1a5632', mb: 1 }}>
+                                  <ArrowDropUp />
+                                </Avatar>
+                                <Typography variant="body2">Planting Window</Typography>
+                                <Typography variant="body1" fontWeight={600}>
+                                  Feb 15 - Mar 10
+                                </Typography>
+                              </Box>
+                            </Grid>
+                            <Grid item xs={6} md={3}>
+                              <Box textAlign="center">
+                                <Avatar sx={{ bgcolor: '#1a5632', mb: 1 }}>
+                                  💧
+                                </Avatar>
+                                <Typography variant="body2">Water Needs</Typography>
+                                <Typography variant="body1" fontWeight={600}>
+                                  500-700mm
+                                </Typography>
+                              </Box>
+                            </Grid>
+                            <Grid item xs={6} md={3}>
+                              <Box textAlign="center">
+                                <Avatar sx={{ bgcolor: '#1a5632', mb: 1 }}>
+                                  🌡️
+                                </Avatar>
+                                <Typography variant="body2">Temperature</Typography>
+                                <Typography variant="body1" fontWeight={600}>
+                                  20-30°C
+                                </Typography>
+                              </Box>
+                            </Grid>
+                            <Grid item xs={6} md={3}>
+                              <Box textAlign="center">
+                                <Avatar sx={{ bgcolor: '#1a5632', mb: 1 }}>
+                                  ⏳
+                                </Avatar>
+                                <Typography variant="body2">Growth Period</Typography>
+                                <Typography variant="body1" fontWeight={600}>
+                                  90-120 Days
+                                </Typography>
+                              </Box>
+                            </Grid>
+                          </Grid>
+                        </Card>
+                      </Grid>
+                    )}
+                  </Grid>
                 </CardContent>
               </Card>
             </Grid>
           </Grid>
         )}
 
-        {/* Financial Hub Tab */}
-        {tabValue === 3 && (
-          <Card>
-            <CardHeader title="Financial Solutions" />
+        {/* Financial Assistance Tab */}
+        {tabValue === 2 && (
+          <Card sx={{ borderRadius: 3, boxShadow: 3 }}>
+            <CardHeader
+              title="Financial Solutions"
+              subheader="Explore loan options and subsidy programs"
+              titleTypographyProps={{ variant: 'h6', fontWeight: 600 }}
+              sx={{ bgcolor: '#f0fdf4' }}
+            />
             <CardContent>
-              <TableContainer>
+              <TableContainer component={Paper} sx={{ borderRadius: 2 }}>
                 <Table>
-                  <TableHead>
+                  <TableHead sx={{ bgcolor: '#f0fdf4' }}>
                     <TableRow>
-                      <TableCell>Provider</TableCell>
-                      <TableCell>Product</TableCell>
-                      <TableCell>Rate</TableCell>
-                      <TableCell>Amount</TableCell>
-                      <TableCell>Action</TableCell>
+                      <TableCell sx={{ fontWeight: 600 }}>Bank</TableCell>
+                      <TableCell sx={{ fontWeight: 600 }}>Interest Rate</TableCell>
+                      <TableCell sx={{ fontWeight: 600 }}>Max Amount</TableCell>
+                      <TableCell sx={{ fontWeight: 600 }}>Eligibility</TableCell>
+                      <TableCell sx={{ fontWeight: 600 }}>Action</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {financialProducts.map((product) => (
-                      <TableRow key={product.bank}>
-                        <TableCell>{product.bank}</TableCell>
-                        <TableCell>{product.type}</TableCell>
-                        <TableCell>{product.rate}</TableCell>
-                        <TableCell>{product.amount}</TableCell>
+                    {loanData.map((loan) => (
+                      <TableRow key={loan.id} hover>
                         <TableCell>
-                          <Button variant="outlined" size="small">
-                            Apply
+                          <Box display="flex" alignItems="center" gap={2}>
+                            <Avatar sx={{ bgcolor: '#e9f5eb' }}>{loan.logo}</Avatar>
+                            {loan.bank}
+                          </Box>
+                        </TableCell>
+                        <TableCell>
+                          <Typography color={parseFloat(loan.interestRate) < 5 ? 'success.main' : 'warning.main'}>
+                            {loan.interestRate}
+                          </Typography>
+                        </TableCell>
+                        <TableCell>{loan.maxAmount}</TableCell>
+                        <TableCell>
+                          <Chip 
+                            label={loan.eligibility} 
+                            color={
+                              loan.eligibility === 'High' ? 'success' : 
+                              loan.eligibility === 'Medium' ? 'warning' : 'error'
+                            }
+                            size="small"
+                          />
+                        </TableCell>
+                        <TableCell>
+                          <Button variant="outlined" color="primary" size="small">
+                            Apply Now
                           </Button>
                         </TableCell>
                       </TableRow>
@@ -232,43 +423,230 @@ const AgriOneDashboard = () => {
           </Card>
         )}
 
-        {/* Marketplace Tab */}
-        {tabValue === 5 && (
+        {/* Logistics Tab */}
+        {tabValue === 3 && (
+          <Card sx={{ borderRadius: 3, boxShadow: 3 }}>
+            <CardHeader
+              title="Storage Logistics"
+              subheader="Real-time storage monitoring and management"
+              titleTypographyProps={{ variant: 'h6', fontWeight: 600 }}
+              sx={{ bgcolor: '#f0fdf4' }}
+            />
+            <CardContent>
+              <TableContainer component={Paper}>
+                <Table>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell sx={{ fontWeight: 600 }}>Location</TableCell>
+                      <TableCell sx={{ fontWeight: 600 }}>Capacity</TableCell>
+                      <TableCell sx={{ fontWeight: 600 }}>Crops Stored</TableCell>
+                      <TableCell sx={{ fontWeight: 600 }}>Temperature</TableCell>
+                      <TableCell sx={{ fontWeight: 600 }}>Humidity</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {logisticsData.map((logistic) => (
+                      <TableRow key={logistic.id} hover>
+                        <TableCell>{logistic.location}</TableCell>
+                        <TableCell>
+                          <Box display="flex" alignItems="center" gap={2}>
+                            <LinearProgress
+                              variant="determinate"
+                              value={logistic.capacity}
+                              sx={{ width: '60%', height: 8, borderRadius: 4 }}
+                            />
+                            <Typography>{logistic.capacity}%</Typography>
+                          </Box>
+                        </TableCell>
+                        <TableCell>{logistic.crops}</TableCell>
+                        <TableCell>{logistic.temperature}</TableCell>
+                        <TableCell>{logistic.humidity}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Weather Tab */}
+        {tabValue === 4 && (
           <Grid container spacing={3}>
-            {marketplaceListings.map((listing) => (
-              <Grid item xs={12} md={4} key={listing.crop}>
-                <Card sx={{ p: 2 }}>
-                  <Typography variant="h6">{listing.crop}</Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    {listing.quantity} available
-                  </Typography>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
-                    <Typography variant="h5">{listing.price}</Typography>
-                    <Chip label={`★ ${listing.rating}`} color="primary" />
-                  </Box>
-                  <Button fullWidth variant="contained" sx={{ mt: 2 }}>
-                    Place Bid
-                  </Button>
+            {weatherData.map((day) => (
+              <Grid item xs={12} sm={6} md={3} key={day.id}>
+                <Card sx={{ borderRadius: 3, boxShadow: 3, height: '100%' }}>
+                  <CardHeader
+                    title={day.day}
+                    subheader="Weather Forecast"
+                    sx={{ bgcolor: '#f0fdf4' }}
+                  />
+                  <CardContent>
+                    <Grid container spacing={2}>
+                      <Grid item xs={12}>
+                        <Typography variant="h3" align="center">
+                          {day.temp}
+                        </Typography>
+                      </Grid>
+                      <Grid item xs={12}>
+                        {renderRiskBadge(day.risk)}
+                      </Grid>
+                      <Grid item xs={12}>
+                        <Divider />
+                      </Grid>
+                      <Grid item xs={6}>
+                        <Box display="flex" alignItems="center" gap={1}>
+                          <Opacity />
+                          <Typography>{day.humidity}</Typography>
+                        </Box>
+                        <Typography variant="caption">Humidity</Typography>
+                      </Grid>
+                      <Grid item xs={6}>
+                        <Box display="flex" alignItems="center" gap={1}>
+                          <Cloud />
+                          <Typography>{day.rainfall}</Typography>
+                        </Box>
+                        <Typography variant="caption">Rainfall</Typography>
+                      </Grid>
+                    </Grid>
+                  </CardContent>
                 </Card>
               </Grid>
             ))}
           </Grid>
         )}
-      </Box>
 
-      {/* AI Assistant Fab */}
-      <Box sx={{ position: 'fixed', bottom: 24, right: 24 }}>
-        <Button
-          variant="contained"
-          color="primary"
-          startIcon={<Chat />}
-          sx={{ borderRadius: 50, boxShadow: 3 }}
-        >
-          AI Assistant
-        </Button>
+        {/* Marketplace Tab */}
+        {tabValue === 5 && (
+          <Grid container spacing={3}>
+            <Grid item xs={12}>
+              <Card sx={{ borderRadius: 3, boxShadow: 3 }}>
+                <CardHeader
+                  title="Agricultural Marketplace"
+                  subheader="Buy and sell crops directly with farmers"
+                  titleTypographyProps={{ variant: 'h6', fontWeight: 600 }}
+                  sx={{ bgcolor: '#f0fdf4' }}
+                />
+                <CardContent>
+                  <Box sx={{ display: 'flex', gap: 2, mb: 3 }}>
+                    <TextField
+                      fullWidth
+                      label="Search crops..."
+                      variant="outlined"
+                      InputProps={{
+                        startAdornment: (
+                          <IconButton size="small">
+                            <Search />
+                          </IconButton>
+                        ),
+                      }}
+                    />
+                    <Button 
+                      variant="contained" 
+                      color="primary"
+                      startIcon={<Add />}
+                      sx={{ minWidth: 180 }}
+                    >
+                      Sell Your Crop
+                    </Button>
+                  </Box>
+
+                  <Grid container spacing={3}>
+                    {marketplaceData.map((item) => (
+                      <Grid item xs={12} sm={6} md={4} key={item.id}>
+                        <Card sx={{ p: 2, borderRadius: 2, height: '100%' }}>
+                          <Box display="flex" flexDirection="column" height="100%">
+                            <Box flexGrow={1}>
+                              <Typography variant="h6" gutterBottom>
+                                {item.crop}
+                              </Typography>
+                              <Chip 
+                                label={`${item.quantity} available`} 
+                                color="info"
+                                size="small"
+                                sx={{ mb: 1 }}
+                              />
+                              <Box display="flex" alignItems="center" gap={1} mb={1}>
+                                <Avatar sx={{ width: 24, height: 24 }}>👨🌾</Avatar>
+                                <Typography variant="body2">{item.seller}</Typography>
+                              </Box>
+                              <Box display="flex" alignItems="center" gap={0.5} mb={2}>
+                                <Typography variant="h5" color="primary">
+                                  {item.price}
+                                </Typography>
+                                <Typography variant="caption">/ton</Typography>
+                              </Box>
+                            </Box>
+                            <Box display="flex" justifyContent="space-between" alignItems="center">
+                              <Button 
+                                variant="contained" 
+                                color="primary"
+                                size="small"
+                              >
+                                Buy Now
+                              </Button>
+                              <Box display="flex" alignItems="center">
+                                <Typography variant="body2" sx={{ mr: 0.5 }}>
+                                  {item.rating}
+                                </Typography>
+                                <Box color="#ffc107">★</Box>
+                              </Box>
+                            </Box>
+                          </Box>
+                        </Card>
+                      </Grid>
+                    ))}
+                  </Grid>
+
+                  <Box mt={4} p={3} bgcolor="#f8fafc" borderRadius={2}>
+                    <Typography variant="h6" gutterBottom>
+                      Create New Listing
+                    </Typography>
+                    <Grid container spacing={2}>
+                      <Grid item xs={12} md={4}>
+                        <TextField
+                          fullWidth
+                          label="Crop Type"
+                          value={newListing.crop}
+                          onChange={(e) => setNewListing({ ...newListing, crop: e.target.value })}
+                        />
+                      </Grid>
+                      <Grid item xs={12} md={4}>
+                        <TextField
+                          fullWidth
+                          label="Quantity"
+                          value={newListing.quantity}
+                          onChange={(e) => setNewListing({ ...newListing, quantity: e.target.value })}
+                        />
+                      </Grid>
+                      <Grid item xs={12} md={4}>
+                        <TextField
+                          fullWidth
+                          label="Price per Unit"
+                          value={newListing.price}
+                          onChange={(e) => setNewListing({ ...newListing, price: e.target.value })}
+                        />
+                      </Grid>
+                      <Grid item xs={12}>
+                        <Button
+                          variant="contained"
+                          color="primary"
+                          onClick={handleCreateListing}
+                          sx={{ mt: 1 }}
+                        >
+                          List Your Crop
+                        </Button>
+                      </Grid>
+                    </Grid>
+                  </Box>
+                </CardContent>
+              </Card>
+            </Grid>
+          </Grid>
+        )}
       </Box>
     </Box>
   );
 };
 
-export default AgriOneDashboard;
+export default Dashboard;
